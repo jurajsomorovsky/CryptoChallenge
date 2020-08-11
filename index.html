@@ -1,0 +1,150 @@
+<html>
+
+<head>
+<title>Dobbertin Award 2012 - HGI Crypto Challenge</title>
+<style type="text/css">
+.code{
+    background-color: #E7E5EC;
+    font-family: "Consolas","Courier New",Courier,mono;
+    font-size: 12px;
+    margin: 18px 0;
+    overflow: auto;
+    padding-top: 1px;
+    width: 99%;
+}
+</style>
+</head>
+
+<body>
+<h1>Dobbertin Challenge 2012</h1>
+
+
+<h2>The Dobbertin Award</h2>
+The Dobbertin Challenge is issued every two years since 2006, in honor and memory of Prof. Hans Dobbertin.
+<br/>
+<br/>
+Hans Dobbertin was the founding director of the HGI and full professor at HGI's Chair for Cryptology and Information Security from 2001-2006. In the 1990's, Dobbertin developed new methods to break hashing algorithms of the MD4-family, and was also able to demonstrate weaknesses of it's successor MD5. His work contributed significantly to the fact that MD5 is considered as broken today.
+
+He was recognized as "Germany's best code breaker" (FAZ, 2002) and one of the best cryptanalysts in the world. His early decease in 2006 was a tremendous loss.
+
+
+
+<h2>The Challenge 2012</h2>
+
+<p>A simple JSON Web Service is provided, which processes PIN codes of users. A user can send his encrypted PIN to the Web Service, which decrypts and stores the PIN.
+
+The Web Service allows to use cryptographically strong algorithms (RSA-OAEP and AES in GCM-mode) as well as algorithms with known weaknesses (RSA-PKCS#1 v1.5 and AES in CBC-mode).
+
+To create a ciphertext, a sender may choose among these algorithms.
+</p>
+
+<p>In order to protect the confidentiality of PINs, encryption based on the JSON Web Encryption standard (<a href="http://tools.ietf.org/html/draft-ietf-jose-json-web-encryption-05">link</a>) is used. This standard allows to apply symmetric and asymmetric encryption algorithms. An examplary message exchange is shown below:</p>
+
+<p><b>Request:</b></p>
+<p class="code">
+POST /service HTTP/1.1<br/>
+Content-Length: 217<br/>
+Content-Type: text/plain; charset=ISO-8859-1<br/>
+Host: cryptochallenge.nds.rub.de:50080<br/>
+Connection: Keep-Alive<br/>
+User-Agent: Apache-HttpClient/4.2.1 (java 1.5)<br/><br/>
+
+eyJhbGciOiJSU0FfT0FFUCIsIml2IjoieXY2NnZ2ck8yNjNleXZpSSIsInR5cCI6IkpXVCIsImVuYyI6IkExMjhHQ00ifQ==.<br/>
+ZBnPlwONWHxGDrtCxxopS4y4SrMZIAhUg3HI+SbLMxfPVRPW8yunejrkmfSLO1H/0tOx4ssggygHjG7sUfxL8A==.<br/>
+i2vygn2vqFpsmep3etrD5Yh5xLP9xYhJdvn63WmHEPYChA==.</p>
+
+<p><b>Response</b></p>
+<p class="code">
+HTTP/1.1 200 OK<br/>
+Content-length: 24<br/>
+Date: Fri, 12 Oct 2012 08:04:48 GMT<br/><br/>
+
+Data successfully stored
+</p>
+
+<h2>Your Task</h2>
+You are the attacker who wants to learn the secret PIN of user Bob. You have already eavesdropped a ciphertext which contains Bob's PIN:<br/>
+
+<p class="code">
+eyJhbGciOiJSU0FfT0FFUCIsIml2IjoieXY2NnZ2ck8yNjNleXZpSSIsInR5cCI6IkpXVCIsImVuYyI6IkExMjhHQ00ifQ==.<br/>ZBnPlwONWHxGDrtCxxopS4y4SrMZIAhUg3HI+SbLMxfPVRPW8yunejrkmfSLO1H/0tOx4ssggygHjG7sUfxL8A==.<br/>i2vygn2vqFpsmep3etrD5Yh5xLP9xYhJdvn63WmHEPYChA==.
+</class>
+
+<p>
+You know already that this ciphertext consists of three parts: 
+<ul>
+  <li>Information about the choice of algorithms used to encrypt this ciphertext (Base64 encoded).</li>
+  <li>An asymmetric ciphertext (RSA-OAEP or RSA-PKCS#1 v1.5, Base64 encoded), which encrypts a symmetric session key.</li>
+  <li>A symmetric ciphertext (AES-CBC or AES-GCM, Base64 encoded), which contains the payload, encrypted with the symmetric session key.<br/>
+  The payload consists of 18 bytes. In case of AES-GCM, the ciphertext is furthermore appended with 16 authentication bytes (There is no such message authentication if CBC-mode is used. However, before using the CBC-mode, the plaintext data has to be padded to achieve the smallest multiple of
+the block size.).</li>
+</ul>
+
+You also know that the decrypted ciphertext has the format <tt>{"My PIN:":"****"}</tt> (18 ASCII characters), where <tt>****</tt> represents a four digit PIN.
+
+<p>Can you use the server as an "oracle" to decrypt Bob's PIN?</p>
+
+<p><b>Server certificate:</b></p>
+<p class="code">
+-----BEGIN CERTIFICATE-----<br/>
+MIIBmTCCAUMCBFB1jPswDQYJKoZIhvcNAQEFBQAwVjELMAkGA1UEBhMCREUxDDAK<br/>
+BgNVBAgMA25ydzEPMA0GA1UEBwwGYm9jaHVtMQwwCgYDVQQKDANoZ2kxDDAKBgNV<br/>
+BAsMA3J1YjEMMAoGA1UEAwwDcnViMB4XDTEyMTAxMDE0NTgwM1oXDTEzMTAxMDE0<br/>
+NTgwM1owVjELMAkGA1UEBhMCREUxDDAKBgNVBAgMA25ydzEPMA0GA1UEBwwGYm9j<br/>
+aHVtMQwwCgYDVQQKDANoZ2kxDDAKBgNVBAsMA3J1YjEMMAoGA1UEAwwDcnViMFww<br/>
+DQYJKoZIhvcNAQEBBQADSwAwSAJBAI/tMgMHi7qf2agEbaYyBa/eRKI44DsDbA8d<br/>
+YBQV7DyIwOn6guTxKUxEsD+WoaUfiKA++dNthAZYoKkylRuoEIECAwEAATANBgkq<br/>
+hkiG9w0BAQUFAANBAEOVWFvIC1XzhakBUb6J4+M+Fc4KkrbvUDBvNE6a0n1tRf3N<br/>
+bY0ZYVQAKA5BGaK518vbFL+BAGkX4a+FA9A/K78=<br/>
+-----END CERTIFICATE-----
+</p>
+
+<h3>Helpful References</h3>
+<ul>
+<li>Daniel Bleichenbacher: Chosen Ciphertext Attacks Against Protocols Based on the RSA Encryption Standard PKCS #1.
+<a href="http://archiv.infsec.ethz.ch/education/fs08/secsem/Bleichenbacher98.pdf">link</a></li>
+
+<li>Serge Vaudenay: Security Flaws Induced by CBC Padding Applications to SSL, IPSEC, WTLS...
+<a href="http://www.iacr.org/cryptodb/archive/2002/EUROCRYPT/2850/2850.pdf">link</a></li>
+
+<li>Erlend Oftedal: Practical attacks on web crypto
+<a href="http://www.rubcast.rub.de/index2.php?id=885">link</a></li>
+
+<li>Graham Steel: Analysis of Cryptographic Security APIs
+<a href="http://www.newton.ac.uk/programmes/SAS/seminars/013116301.html">link</a></li>
+
+<li>JSON Web Encryption
+<a href="http://tools.ietf.org/html/draft-ietf-jose-json-web-encryption-05">link</a></li>
+
+<li>This challenge was created using the Nimbus-JWT library
+<a href="https://bitbucket.org/nimbusds/nimbus-jwt">link</a></li> 
+</ul>
+
+<h2>The rules</h2>
+<ul>
+<li>If you have decrypted the ciphertext successfully, please send an email to <tt>juraj.somorovsky@rub.de</tt>, with a short description of how you recovered the PIN.</li>
+<li>This is a pure crypto challenge! You can win only if you apply a cryptographic attack. In particular "hacking" the server, XSS, CSRF, etc. is not allowed.</li>
+<li>The first person or team that submits the correct PIN, with a short description of the attack strategy, will receive the Dobbertin Award 2012 (challenge cup and 300 EUR prize money) from Mrs. Dobbertin. </li>
+<li>This challenge is exclusive for RUB students. Everybody else is allowed to participate non-competitively and become a part of our Hall of Fame. Only RUB students can be awarded with the Dobbertin Award.
+</ul>
+<b>Thank you for participating in this challenge.</b>
+
+<h2>Hall of Fame</h2>
+<ol>
+<li>Eloi Vanderbeken <sup>1,2</sup> (@elvanderb)
+<li>Christian Becker <sup>1</sup> - <b>our RUB challenge winner</b></li>
+<li>Alexey Hellman <sup>1,2</sup> (@hellman1908)</li>
+<li>Simon Zuckerbraun <sup>1</sup> (@HexKitchen)</li>
+<li>Michael Gehring <sup>1,2</sup></li>
+<li>Dominik Oepen <sup>1</sup> (@dmnk_bln)</li>
+</ol>
+
+<p>
+<sup>1</sup> found the solution the "symmetric" way.<br/>
+<sup>2</sup> found the solution the "asymmetric" way.
+
+<p>
+We would like to please the successful participants not to publicly disclose their solution before the 10th of November. Thank You.</p>
+<p></p>
+
+</body>
+</html>
